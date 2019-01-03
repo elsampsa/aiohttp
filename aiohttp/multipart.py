@@ -765,6 +765,8 @@ class MultipartWriter(Payload):
             obj: Any,
             headers: Optional['MultiMapping[str]']=None
     ) -> Payload:
+        print("FUCK: append : headers=", headers)
+        # import pdb; pdb.set_trace()
         if headers is None:
             headers = CIMultiDict()
 
@@ -779,7 +781,10 @@ class MultipartWriter(Payload):
             return self.append_payload(obj)
         else:
             try:
-                return self.append_payload(get_payload(obj, headers=headers))
+                # return self.append_payload(get_payload(obj, headers=headers))
+                p=get_payload(obj, headers=headers)
+                print("FUCK: append: payload headers=", p.headers)
+                return self.append_payload(p)
             except LookupError:
                 raise TypeError
 
@@ -790,6 +795,8 @@ class MultipartWriter(Payload):
         if CONTENT_TYPE not in payload.headers:
             assert payload.content_type is not None
             payload.headers[CONTENT_TYPE] = payload.content_type
+
+        print("FUCK: append_payload : headers=", payload.headers)
 
         # compression
         encoding = payload.headers.get(CONTENT_ENCODING, '').lower()  # type: Optional[str]  # noqa
@@ -816,6 +823,8 @@ class MultipartWriter(Payload):
         headers = ''.join(
             [k + ': ' + v + '\r\n' for k, v in payload.headers.items()]
         ).encode('utf-8') + b'\r\n'
+
+        print("FUCK 3", headers)
 
         self._parts.append((payload, headers, encoding, te_encoding))  # type: ignore  # noqa
         return payload
@@ -874,11 +883,15 @@ class MultipartWriter(Payload):
     async def write(self, writer: Any,
                     close_boundary: bool=True) -> None:
         """Write body."""
+
+        print("FUCK 1")
+
         if not self._parts:
             return
 
         for part, headers, encoding, te_encoding in self._parts:
             await writer.write(b'--' + self._boundary + b'\r\n')
+            print("FUCK 2", headers)
             await writer.write(headers)
 
             if encoding or te_encoding:

@@ -188,8 +188,44 @@ class Payload(ABC):
         if self._headers is None:
             self._headers = CIMultiDict()
 
-        self._headers[hdrs.CONTENT_DISPOSITION] = content_disposition_header(
-            disptype, quote_fields=quote_fields, **params)
+        if (hdrs.CONTENT_DISPOSITION in self._headers):
+            print("set_content_disposition : CONTENT_DISPOSITION found : ", self._headers[hdrs.CONTENT_DISPOSITION])
+
+        else:
+            # if True:
+
+            print("set_content_disposition : overwriting ")
+            self._headers[hdrs.CONTENT_DISPOSITION] = content_disposition_header(
+                disptype, quote_fields=quote_fields, **params)
+        print("set_content_disposition : now ", self._headers[hdrs.CONTENT_DISPOSITION])
+        # import pdb; pdb.set_trace()
+        """
+        (Pdb) w
+        /home/sampsa/duranc/duranc_gateway/duranc/gateway/playground/post_test.py(218)<module>()
+        -> asyncio.get_event_loop().run_until_complete(upload_thumbnail4())
+        /usr/lib/python3.6/asyncio/base_events.py(455)run_until_complete()
+        -> self.run_forever()
+        /usr/lib/python3.6/asyncio/base_events.py(422)run_forever()
+        -> self._run_once()
+        /usr/lib/python3.6/asyncio/base_events.py(1434)_run_once()
+        -> handle._run()
+        /usr/lib/python3.6/asyncio/events.py(145)_run()
+        -> self._callback(*self._args)
+        /home/sampsa/duranc/duranc_gateway/duranc/gateway/playground/post_test.py(166)upload_thumbnail4()
+        -> subwriter = mpwriter.append(f, {aiohttp.hdrs.CONTENT_DISPOSITION : "fuck"})
+        /home/sampsa/python3_packages/aiohttp/aiohttp/multipart.py(785)append()
+        -> p=get_payload(obj, headers=headers)
+        /home/sampsa/python3_packages/aiohttp/aiohttp/payload.py(60)get_payload()
+        -> return PAYLOAD_REGISTRY.get(data, *args, **kwargs)
+        /home/sampsa/python3_packages/aiohttp/aiohttp/payload.py(101)get()
+        -> return factory(data, *args, **kwargs)
+        /home/sampsa/python3_packages/aiohttp/aiohttp/payload.py(291)__init__()
+        -> self.set_content_disposition(disposition, filename=self._filename)
+        > /home/sampsa/python3_packages/aiohttp/aiohttp/payload.py(197)set_content_disposition()->None
+        -> import pdb; pdb.set_trace()
+        """
+
+
 
     @abstractmethod
     async def write(self, writer: AbstractStreamWriter) -> None:
